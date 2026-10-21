@@ -33,3 +33,8 @@ endif()
 find_package(Qt6 REQUIRED COMPONENTS Core)
 
 add_subdirectory(core)
+
+if (MOO_BUILD_TESTS)
+	enable_testing()
+	add_subdirectory(tests)
+endif()
