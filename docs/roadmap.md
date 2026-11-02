@@ -24,10 +24,11 @@
 - ✅ varint 编解码 + 边界测试（含负数取反编码、无符号语义、递归保护）
 - ✅ TCP 2+4 分帧（半包/粘包/畸形长度）+ 消息类型常量
 - ⬜ TLS 连接（自签证书 + 指纹记忆）
-- ⬜ 握手：Version → Authenticate → ServerSync
-- ⬜ 状态机：ChannelState / UserState / UserRemove 增量应用
-- ⬜ 文本消息收发
-- ⬜ 心跳与延迟统计
+- ✅ 握手：Version → Authenticate → ServerSync
+- ✅ 状态机：ChannelState / UserState / UserRemove 增量应用
+- ✅ 文本消息收发（频道 / 私聊）
+- ✅ 传输抽象（`ITransport`）+ 内存传输（测试用）
+- 🟨 心跳：能回 Ping，但还没有 RTT / 丢包统计
 - ⬜ 抓包 golden 测试
 
 **验收**：`dart run example/list_channels.dart <host> <user> <pass>` 打印正确的频道树。

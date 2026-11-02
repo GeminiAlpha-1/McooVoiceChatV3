@@ -10,5 +10,8 @@ library;
 
 export 'src/proto/Mumble.pb.dart';
 export 'src/proto/Mumble.pbenum.dart';
+export 'src/session/server_state.dart';
+export 'src/session/session.dart';
+export 'src/transport/transport.dart';
 export 'src/wire/frame.dart';
 export 'src/wire/varint.dart';
