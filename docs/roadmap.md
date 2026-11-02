@@ -20,9 +20,10 @@
 
 目标：`packages/mumble_protocol` 能连上真实服务器，拿到频道树与用户表。
 
-- ⬜ vendor 官方 `Mumble.proto` / `MumbleUDP.proto` + protoc 生成
-- ⬜ varint 编解码 + 边界测试
-- ⬜ TCP 2+4 分帧 + TLS 连接
+- ✅ vendor 官方 `Mumble.proto` / `MumbleUDP.proto` + protoc 生成
+- ✅ varint 编解码 + 边界测试（含负数取反编码、无符号语义、递归保护）
+- ✅ TCP 2+4 分帧（半包/粘包/畸形长度）+ 消息类型常量
+- ⬜ TLS 连接（自签证书 + 指纹记忆）
 - ⬜ 握手：Version → Authenticate → ServerSync
 - ⬜ 状态机：ChannelState / UserState / UserRemove 增量应用
 - ⬜ 文本消息收发

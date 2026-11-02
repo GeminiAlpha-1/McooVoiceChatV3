@@ -1,0 +1,15 @@
+name: mumble_protocol
+description: Mumble 协议编解码与传输（纯 Dart，零 GUI 依赖）
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.5.0
+
+dependencies:
+  protobuf: ^6.1.0
+  fixnum: ^1.1.0
+
+dev_dependencies:
+  test: ^1.25.0
+  lints: ^4.0.0
