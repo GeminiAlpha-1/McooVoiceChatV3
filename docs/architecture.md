@@ -73,7 +73,7 @@
 | `packages/mcoo_plugin_api` | 插件契约、manifest 模型、能力枚举 | core | ✅ |
 | `packages/mcoo_ui_kit` | 设计系统：主题、令牌、通用组件 | Flutter | widget test |
 | `apps/client` | Flutter 应用壳 + UI + 插件宿主 | 以上全部 | 集成测试 |
-| `apps/mcoo-service` | 常驻 bot：AFK + 点歌台 + 插件 | protocol, audio | ✅ |
+| `apps/mcoo-service` | 队列/状态服务；可选兼任广播 bot | protocol, audio | ✅ |
 
 ---
 
@@ -116,27 +116,35 @@ UDP recv → OCB 解密 → VoicePacket.decode
 
 **注意**：UI 的"谁在说话"由音频层事件驱动，不由 UI 轮询——v2 在这块是靠 store 轮询，会有延迟。
 
-### 4.4 AFK
+### 4.4 用户状态（Presence）
 
 ```
-McooService(AFK 模块) 每 5s:
-  → 对每个在线用户取双源空闲时长（客户端上报 > UserStats.idlesecs）
-  → idle > threshold 且不在 AFK 频道 → Move 到 AFK 频道，记录原频道
-  → 活跃且记录存在 → Move 回原频道
-  → 同一用户 30s 内不重复移动（防抖，避免和用户手动操作打架）
-客户端:
-  → 收到 UserState 变更 → 更新 Domain → UI 打 AFK 徽标 + 时长
+用户点"去拿快递了"
+  → 本地 PresenceService 更新 → UI 立刻生效（不等网络）
+  → PluginDataTransmission 广播 {type: mcoo.presence, kind, text, until}
+  → 其他 Mcoo 客户端收到 → 更新该用户显示
+  → 原版 Mumble 客户端：忽略这条消息，无感知
+
+新用户进服 → 发 mcoo.presence.query → 其他人回自己的状态快照
+无操作 N 分钟 → 本地自动置 away（只改显示，不移动用户）
 ```
 
-### 4.5 点歌台
+**注意**：这条链路完全不经过服务端逻辑，murmur 只是转发扩展数据。
+
+### 4.5 点歌台（本地播放）
 
 ```
-客户端 UI 搜索 → HTTP/WS 到 mcoo-service
+客户端搜索 → HTTP/WS 到 mcoo-service（只是队列服务，不是 Mumble 客户端）
   → 服务端队列（revision 单调递增，客户端按 revision 丢弃过期快照）
-  → 当前曲目：ffmpeg 子进程解码 → PCM → 重采样 48k → Opus 96k 立体声
-  → 以 bot 身份向频道发语音包（20ms 帧，实时时钟驱动）
-客户端 UI 通过 WS 订阅队列与播放进度，只做展示与操作
+  → 广播 {track, audioUrl, startAt}（服务端单调时钟）
+  → 各客户端自己下载/命中缓存 → 上报 ready
+  → 服务端等齐（或超时 8s）→ 二次确认 startAt
+  → 客户端在本地时钟到达 startAt 时开播
+  → 播放中每 5s 比对进度，偏差 > 500ms 则 seek
 ```
+
+音源解析成"客户端可直接下载的 URL"，所以**点歌人的网络与本地文件不影响其他人**。
+可选的 `broadcast` 模式下，该服务额外以 bot 身份把 Opus 播进频道（给原版客户端听）。
 
 ---
 
@@ -193,7 +201,7 @@ McooVoiceChatV3/
 │   │   │   └── di.dart
 │   │   ├── android/  windows/
 │   │   └── test/
-│   └── mcoo-service/           # 常驻 bot（AFK + 点歌台）
+│   └── mcoo-service/           # 队列/状态服务（可选广播 bot）
 ├── packages/
 │   ├── mumble_protocol/
 │   ├── mcoo_audio/

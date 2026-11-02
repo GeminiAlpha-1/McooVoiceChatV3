@@ -57,21 +57,32 @@
 
 **验收**：不接服务器也能用假数据走通所有界面；接上服务器后功能可用。
 
-## M4 AFK
+## M4 用户状态与账号
 
-- ⬜ `apps/mcoo-service` 骨架（bot 连接、配置加载、状态持久化）
-- ⬜ AFK 模块：双源空闲判定、移动/恢复、防抖
-- ⬜ 客户端：心跳上报、AFK 徽标、返回提示
+**Presence**
+
+- ⬜ `PresenceService`：状态模型、本地立即生效、`until` 到期恢复
+- ⬜ `PluginDataTransmission` 广播与快照请求
+- ⬜ 自动离开（全局输入监听 → away，仅改显示不移动用户）
+- ⬜ UI：用户列表胶囊标签、状态栏切换菜单、自定义弹窗
+
+**账号**
+
+- ⬜ 证书生成/存储/导入导出（系统安全存储）
+- ⬜ 首次连接向导：昵称 → 注册（`UserState{user_id}`）→ 完成
+- ⬜ 账号页：头像、证书指纹、注销
 - ⬜ 与官方客户端共存测试
 
-**验收**：见 [features/afk.md](features/afk.md) 的验收清单。
+**验收**：见 [features/presence.md](features/presence.md) 与 [features/accounts.md](features/accounts.md) 的验收清单。
 
-## M5 点歌台
+## M5 点歌台（本地播放）
 
-- ⬜ 服务端队列 + WS API
-- ⬜ ffmpeg 解码 → Opus 编码 → 实时发送
+- ⬜ `apps/mcoo-service`：队列 + WS API + 时钟同步端点
+- ⬜ 客户端：音源下载、缓存（LRU）、缓冲就绪上报
+- ⬜ 时钟同步（NTP 式测时）+ 开播调度 + 漂移校正
 - ⬜ 音源 Provider（本地文件 / URL 直链）
 - ⬜ 客户端面板（唱片 UI、搜索、队列、投票跳过）
+- ⬜ 可选：`broadcast` 模式（bot 转播给原版客户端）
 
 **验收**：见 [features/jukebox.md](features/jukebox.md) 的验收清单。
 

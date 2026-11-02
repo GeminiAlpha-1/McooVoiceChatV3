@@ -1,7 +1,7 @@
 # McooVoiceChat V3
 
 基于 [Mumble](https://github.com/mumble-voip/mumble) 协议语义、重做 UI 的跨平台语音客户端。
-保留 Mumble 的低延迟与协议兼容性，换上 TeamSpeak 风格的界面，并加入 **类 TeamSpeak 的 AFK 状态** 与 **点歌台**。
+保留 Mumble 的低延迟与协议兼容性，换上 TeamSpeak 风格的界面，并加入 **用户状态（去拿快递了 / 挂机中）**、**点歌台** 与 **稳定的账号身份**。
 
 - 平台：**Windows（免安装便携包）** · **Android**
 - 兼容：可直连任何标准 `mumble-server`（1.4 / 1.5），**无需改服务端**
@@ -29,7 +29,7 @@
 | 业务核心 | Dart | 与 UI 同语言，协议层可脱离 GUI 单测 |
 | 实时音频 | C（miniaudio + libopus + speexdsp）经 FFI | 音频回调不进 Dart，GC 停顿碰不到音频线程 |
 | 状态管理 | Riverpod | 编译期安全的 DI + 可脱离 Widget 树测试 |
-| 常驻服务 | Dart CLI（`apps/mcoo-service`） | 复用同一份协议层，AFK 与点歌台都在这里 |
+| 常驻服务 | Dart CLI（`apps/mcoo-service`） | 只做点歌台的队列与时钟；默认不连 Mumble |
 
 ## 文档
 
@@ -38,11 +38,12 @@
 | [architecture.md](docs/architecture.md) | 分层、模块职责、数据流、**抽象层该不该加**的判断标准 |
 | [protocol-notes.md](docs/protocol-notes.md) | 协议速查：分帧、语音包、OCB、varint、权限坑 |
 | [adr/0001](docs/adr/0001-client-stack.md) | 技术栈选型与 7 个候选的否决理由 |
-| [adr/0002](docs/adr/0002-server-strategy.md) | 为什么不 fork murmur，改用常驻 bot |
+| [adr/0002](docs/adr/0002-server-strategy.md) | 为什么不 fork murmur，扩展为什么放在客户端 |
 | [adr/0003](docs/adr/0003-plugin-model.md) | 插件三层模型与能力授权 |
 | [adr/0004](docs/adr/0004-protocol.md) | 协议层自研方案与"保留核心业务逻辑"清单 |
-| [features/afk.md](docs/features/afk.md) | 类 TeamSpeak AFK 的设计、双源判定、防抖 |
-| [features/jukebox.md](docs/features/jukebox.md) | 点歌台：广播模式 vs 同步模式的取舍 |
+| [features/presence.md](docs/features/presence.md) | 用户状态：自定义文字、自动离开、跨客户端同步 |
+| [features/jukebox.md](docs/features/jukebox.md) | 点歌台：本地播放优先，时钟同步与漂移校正 |
+| [features/accounts.md](docs/features/accounts.md) | 账号系统：证书即身份，名字不可随意改 |
 | [roadmap.md](docs/roadmap.md) | M0–M8 里程碑与验收标准 |
 
 ## 仓库结构
